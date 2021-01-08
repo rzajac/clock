@@ -110,3 +110,19 @@ func Test_SetClockStatic(t *testing.T) {
 	assert.Exactly(t, past, tim1)
 	assert.Exactly(t, past, tim2)
 }
+
+func BenchmarkClockNow(b *testing.B) {
+	var now time.Time
+	for i := 0; i < b.N; i++ {
+		now = clock.Now()
+	}
+	_ = now
+}
+
+func BenchmarkTimeNow(b *testing.B) {
+	var now time.Time
+	for i := 0; i < b.N; i++ {
+		now = time.Now()
+	}
+	_ = now
+}

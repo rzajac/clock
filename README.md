@@ -57,7 +57,12 @@ fmt.Println(clock.Now().Format(time.RFC3339)) // 2020-01-01T00:00:01Z
 fmt.Println(clock.Now().Format(time.RFC3339)) // 2020-01-01T00:00:02Z
 ```
 
-## 
+## Benchmarks
+
+```
+BenchmarkClockNow-12            27557296                42.5 ns/op             0 B/op          0 allocs/op
+BenchmarkTimeNow-12             28931214                41.4 ns/op             0 B/op          0 allocs/op
+```
 
 ## License
 
