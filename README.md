@@ -47,6 +47,9 @@ fmt.Println(now) // 2020-01-01T00:00:00Z
 
 ## Make calls to `clock.Now()` predictable
 
+Every time `Now()` is called it returns time incremented by one second (no 
+matter now fast or slow you call it).
+
 ```
 start := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
 clock.SetClockTick(start, time.Second)
@@ -55,6 +58,18 @@ defer clock.ResetClock()
 fmt.Println(clock.Now().Format(time.RFC3339)) // 2020-01-01T00:00:00Z
 fmt.Println(clock.Now().Format(time.RFC3339)) // 2020-01-01T00:00:01Z
 fmt.Println(clock.Now().Format(time.RFC3339)) // 2020-01-01T00:00:02Z
+```
+
+Make `Now()` to always return the same time.
+
+```
+start := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
+clock.SetClockStatic(start)
+defer clock.ResetClock()
+
+fmt.Println(clock.Now().Format(time.RFC3339)) // 2020-01-01T00:00:00Z
+fmt.Println(clock.Now().Format(time.RFC3339)) // 2020-01-01T00:00:00Z
+fmt.Println(clock.Now().Format(time.RFC3339)) // 2020-01-01T00:00:00Z
 ```
 
 ## Benchmarks
