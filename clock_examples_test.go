@@ -17,7 +17,6 @@ func ExampleSetClock_globally() {
 	// Output: 2020-01-01T00:00:00Z
 }
 
-
 func ExampleSetClockTick() {
 	start := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
 	clock.SetClockTick(start, time.Second)
