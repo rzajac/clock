@@ -12,7 +12,7 @@ import (
 var past = time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
 var future = time.Now().Add(time.Hour).Truncate(time.Second)
 
-func Test_Watch_OptStart(t *testing.T) {
+func Test_Watch_WatchStart(t *testing.T) {
 	// --- Given ---
 	w := clock.New(clock.WatchStart(past))
 
@@ -23,7 +23,7 @@ func Test_Watch_OptStart(t *testing.T) {
 	assert.Exactly(t, past, tim0.Truncate(time.Second))
 }
 
-func Test_Watch_OptTick(t *testing.T) {
+func Test_Watch_WatchTick(t *testing.T) {
 	// --- Given ---
 	w := clock.New(clock.WatchTick(past, time.Second))
 
@@ -38,7 +38,7 @@ func Test_Watch_OptTick(t *testing.T) {
 	assert.Exactly(t, past.Add(2*time.Second), tim2)
 }
 
-func Test_Watch_OptStatic(t *testing.T) {
+func Test_Watch_WatchStatic(t *testing.T) {
 	// --- Given ---
 	w := clock.New(clock.WatchStatic(past))
 
@@ -79,7 +79,7 @@ func Test_SetClock_future(t *testing.T) {
 	assert.True(t, future.Add(time.Second).Equal(now.Truncate(time.Second)))
 }
 
-func Test_SetTickClock(t *testing.T) {
+func Test_SetClockTick(t *testing.T) {
 	// --- Given ---
 	clock.SetClockTick(past, time.Second)
 	defer clock.ResetClock()
@@ -95,7 +95,7 @@ func Test_SetTickClock(t *testing.T) {
 	assert.Exactly(t, past.Add(2*time.Second), tim2)
 }
 
-func Test_SetStaticClock(t *testing.T) {
+func Test_SetClockStatic(t *testing.T) {
 	// --- Given ---
 	clock.SetClockStatic(past)
 	defer clock.ResetClock()
