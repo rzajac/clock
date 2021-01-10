@@ -5,11 +5,7 @@
 
 Testing code which uses `time.Now()` is hard and in many instances impossible.
 Package `clock` is an attempt to simplify this kind of tests by providing
-methods and interfaces allowing easy way to inject different "clock"
-implementations.
-
-Besides `Clock` interface package also provides package level `clock.Now()`
-method which behaviour might be changed in tests. See examples for use cases.
+package level clock and few test clock implementations.
 
 # Installation
 
@@ -19,64 +15,88 @@ go get github.com/rzajac/clock
 
 # Usage
 
-## Inject clock
+## Inject clock implementation.
+
+Production code:
 
 ```
 func NewStruct(clk clock.Clock) {
 	// ...
+	now := clk()
+	// ...
 }
 
-start := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
-watch := clock.New(clock.WatchTick(start, time.Second))
+s := NewStruct(time.Now)
 
-s := NewStruct(watch)
+// or
+
+s := NewStruct(clock.Now) // Works exaclty the same way as time.Now().
+```
+
+Tests:
+
+```
+tim := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
+s := NewStruct(clock.Fixed(start))
 ```
 
 ## Set clock globally
 
-```
-now := clock.Now().Format(time.RFC3339)
-fmt.Println(now) // 2021-01-08T15:02:53+01:00
+In case your code already uses `time.Now()` and you are not able to use
+injection method, use package level clock and override its implementation in
+tests.
 
-clock.SetClock(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC))
-defer clock.ResetClock() // Make sure you reset the clock!
-
-now = clock.Now().Truncate(time.Millisecond).Format(time.RFC3339)
-fmt.Println(now) // 2020-01-01T00:00:00Z
-```
-
-## Make calls to `clock.Now()` predictable
-
-Every time `Now()` is called it returns time incremented by one second (no 
-matter now fast or slow you call it).
+Production code:
 
 ```
-start := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
-clock.SetClockTick(start, time.Second)
-defer clock.ResetClock()
-
-fmt.Println(clock.Now().Format(time.RFC3339)) // 2020-01-01T00:00:00Z
-fmt.Println(clock.Now().Format(time.RFC3339)) // 2020-01-01T00:00:01Z
-fmt.Println(clock.Now().Format(time.RFC3339)) // 2020-01-01T00:00:02Z
+func doStuff() {
+    // ...
+    doOtherStuff(clock.Now())
+    // ...
+}
 ```
 
-Make `Now()` to always return the same time.
+Tests:
 
 ```
-start := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
-clock.SetClockStatic(start)
-defer clock.ResetClock()
+tim := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
+clock.SetClock(clock.Fixed(tim))
+defer clock.SetDefault() // Make sure you set package level clock to default!
 
-fmt.Println(clock.Now().Format(time.RFC3339)) // 2020-01-01T00:00:00Z
-fmt.Println(clock.Now().Format(time.RFC3339)) // 2020-01-01T00:00:00Z
-fmt.Println(clock.Now().Format(time.RFC3339)) // 2020-01-01T00:00:00Z
+// Perform your tests.
 ```
+
+## Useful clock implementations.
+
+Package `clock` provides few useful "clock" you can use in your tests.
+
+- `StartingAt(tim time.Time)` - sets current time.
+- `Fixed(tim time.Time)` - clock always returning the same time.
+    ```
+    tim := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
+    clk := clock.Fixed(tim)
+    
+    fmt.Println(clk().Format(time.RFC3339)) // 2020-01-01T00:00:00Z
+    fmt.Println(clk().Format(time.RFC3339)) // 2020-01-01T00:00:00Z
+    fmt.Println(clk().Format(time.RFC3339)) // 2020-01-01T00:00:00Z
+    ```  
+- `Deterministic(start time.Time, tick time.Duration)` - clock which advances
+  given start time by tick every time you call it (no matter now fast or slow
+  you do it).
+    ```
+    start := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)
+    clk := clock.Deterministic(start, time.Second)
+
+    fmt.Println(clk().Format(time.RFC3339)) // 2020-01-01T00:00:00Z
+    fmt.Println(clk().Format(time.RFC3339)) // 2020-01-01T00:00:01Z
+    fmt.Println(clk().Format(time.RFC3339)) // 2020-01-01T00:00:02Z
+    ```
 
 ## Benchmarks
 
 ```
-BenchmarkClockNow-12   27557296    42.5 ns/op    0 B/op    0 allocs/op
-BenchmarkTimeNow-12    28931214    41.4 ns/op    0 B/op    0 allocs/op
+BenchmarkClockNow-12    27322105    42.9 ns/op    0 B/op    0 allocs/op
+BenchmarkTimeNow-12     28653739    42.0 ns/op    0 B/op    0 allocs/op
 ```
 
 ## License
