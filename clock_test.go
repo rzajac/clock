@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/ctx42/testing/pkg/assert"
 
 	"github.com/rzajac/clock"
 )
@@ -66,9 +66,9 @@ func Test_SetClock_Deterministic(t *testing.T) {
 	tim2 := clock.Now()
 
 	// --- Then ---
-	assert.Exactly(t, past.Add(0*time.Second), tim0)
-	assert.Exactly(t, past.Add(1*time.Second), tim1)
-	assert.Exactly(t, past.Add(2*time.Second), tim2)
+	assert.Equal(t, past.Add(0*time.Second), tim0)
+	assert.Equal(t, past.Add(1*time.Second), tim1)
+	assert.Equal(t, past.Add(2*time.Second), tim2)
 }
 
 func Test_SetClock_Fixed(t *testing.T) {
@@ -82,9 +82,9 @@ func Test_SetClock_Fixed(t *testing.T) {
 	tim2 := clock.Now()
 
 	// --- Then ---
-	assert.Exactly(t, past, tim0)
-	assert.Exactly(t, past, tim1)
-	assert.Exactly(t, past, tim2)
+	assert.Equal(t, past, tim0)
+	assert.Equal(t, past, tim1)
+	assert.Equal(t, past, tim2)
 }
 
 func BenchmarkClockNow(b *testing.B) {
